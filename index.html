@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعلم تقطيع السلاسل النصية في بايثون - الصف العاشر</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F9FC;
+            --purple: #9B59B6;
+            --pink: #FF85A1;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #EEF2F5;
+            color: var(--dark);
+            padding: 20px;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #FF6B6B, #FF85A1);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: #E2E8F0;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark);
+        }
+
+        .tab-btn.active {
+            background: var(--secondary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .visualizer-card {
+            background: #F8FAFC;
+            border: 2px dashed #CBD5E1;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .visualizer-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--purple);
+        }
+
+        .string-display-ltr {
+            direction: ltr;
+            display: inline-flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .char-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .index-num {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #64748B;
+            margin-bottom: 5px;
+            background: #E2E8F0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .char-val {
+            width: 45px;
+            height: 50px;
+            background: white;
+            border: 2px solid #CBD5E1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+
+        .char-box.dot .char-val {
+            background: var(--accent);
+            border-color: #F1C40F;
+            transform: scale(1.1);
+        }
+
+        .char-box.denar .char-val {
+            background: var(--pink);
+            color: white;
+            border-color: #FF477E;
+        }
+
+        .char-box.fils .char-val {
+            background: var(--purple);
+            color: white;
+            border-color: #8E44AD;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .step-btn {
+            background: var(--dark);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .step-btn:hover {
+            background: #1A252F;
+        }
+
+        .explanation-box {
+            background: #EBF8FF;
+            border-right: 5px solid #3182CE;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            min-height: 70px;
+        }
+
+        .code-simulator {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            border-radius: 12px;
+            padding: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+            text-align: left;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .code-line {
+            margin: 5px 0;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+
+        .code-line.active {
+            background: #37373D;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .keyword { color: #569CD6; }
+        .string { color: #CE9178; }
+        .func { color: #DCDCAA; }
+        .comment { color: #6A9955; }
+        .output { color: #4ECDC4; font-weight: bold; }
+
+        .quiz-section {
+            background: #FFF5F5;
+            border: 2px solid #FED7D7;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .quiz-option {
+            background: white;
+            border: 2px solid #E2E8F0;
+            padding: 10px 20px;
+            margin: 8px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--secondary);
+            background: #E6FFFA;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>لوحة تقطيع السلاسل النصية (String Slicing)</h1>
+        <p>مادة الحاسوب - الصف العاشر | إيجاد الفهرس وتقطيع الدنانير والفلوس</p>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="loadExample(0)">المثال الأول (641.385)</button>
+        <button class="tab-btn" onclick="loadExample(1)">المثال الثاني (32.750)</button>
+        <button class="tab-btn" onclick="loadExample(2)">المثال الثالث (5.250)</button>
+    </div>
+
+    <div class="visualizer-card">
+        <div class="visualizer-title" id="var-title">المتغير: money = '641.385'</div>
+        <p style="font-size:0.9rem; color:#64748B; margin-bottom:10px;">الفهرس يبدأ من اليسار (0) ويتزايد نحو اليمين:</p>
+        
+        <div class="string-display-ltr" id="string-container"></div>
+    </div>
+
+    <div class="controls">
+        <button class="step-btn" onclick="runStep(1)">الخطوة 1: تحديد النقطة .find('.')</button>
+        <button class="step-btn" onclick="runStep(2)">الخطوة 2: اقتطاع الدنانير [ : dot ]</button>
+        <button class="step-btn" onclick="runStep(3)">الخطوة 3: اقتطاع الفلوس [ dot + 1 : ]</button>
+        <button class="step-btn" style="background:#E2E8F0; color:#333;" onclick="resetSteps()">إعادة العرض</button>
+    </div>
+
+    <div class="explanation-box" id="explanation">
+        اضغطي على إحدى الخطوات أعلاه لمشاهدة كيفية تنفيذ التقطيع في بايثون!
+    </div>
+
+    <div class="code-simulator">
+        <div style="color: #888; font-size: 0.8rem; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">Python Code & Output Console:</div>
+        <div id="code-display"></div>
+        <div style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #444;">
+            <span style="color: #888;">>>> Output:</span>
+            <div id="console-output" class="output" style="margin-top:5px;"></div>
+        </div>
+    </div>
+
+    <div class="quiz-section">
+        <h3>سؤال سريع للتحقق من الفهم 💡</h3>
+        <p id="quiz-question" style="margin: 10px 0;"></p>
+        <div id="quiz-options"></div>
+    </div>
+</div>
+
+<script>
+    const examples = [
+        {
+            varName: "money",
+            val: "641.385",
+            dotIndex: 3,
+            denarSlice: [0, 3],
+            filsSlice: [4, 7], // تم تعديل البداية إلى 4 (dot + 1)
+            code: [
+                `money = '641.385'`,
+                `print(money.find('.'))`,
+                `denar = money[0:3]`,
+                `fils = money[4:]`,
+                `print(denar)`,
+                `print(fils)`
+            ],
+            quizQuestion: "في المثال الأول '641.385'، ما هي نتيجة أمر الطباعة print(money.find('.')) ؟",
+            quizOpts: [
+                { text: "3", correct: true },
+                { text: "2", correct: false },
+                { text: "4", correct: false }
+            ]
+        },
+        {
+            varName: "money1",
+            val: "32.750",
+            dotIndex: 2,
+            denarSlice: [0, 2],
+            filsSlice: [3, 6], // تم تعديل البداية إلى 3 (dot + 1)
+            code: [
+                `money1 = '32.750'`,
+                `print(money1.find('.'))`,
+                `denar1 = money1[:2]`,
+                `fils1 = money1[3:]`,
+                `print(denar1)`,
+                `print(fils1)`
+            ],
+            quizQuestion: "في المثال الثاني '32.750'، ما هو نطاق الاقتطاع الخاص بالدنانير denar1 ؟",
+            quizOpts: [
+                { text: "money1[:2]", correct: true },
+                { text: "money1[3:]", correct: false },
+                { text: "money1[1:3]", correct: false }
+            ]
+        },
+        {
+            varName: "money2",
+            val: "5.250",
+            dotIndex: 1,
+            denarSlice: [0, 1],
+            filsSlice: [2, 5], // تم تعديل البداية إلى 2 (dot + 1)
+            code: [
+                `money2 = '5.250'`,
+                `print(money2.find('.'))`,
+                `denar2 = money2[:1]`,
+                `fils2 = money2[2:]`,
+                `print(denar2)`,
+                `print(fils2)`
+            ],
+            quizQuestion: "في المثال الثالث '5.250'، ما هو الفهرس الذي نبدأ منه لاقتطاع الفلوس بدون النقطة؟",
+            quizOpts: [
+                { text: "2", correct: true },
+                { text: "1", correct: false },
+                { text: "0", correct: false }
+            ]
+        }
+    ];
+
+    let currentExIndex = 0;
+
+    function loadExample(index) {
+        currentExIndex = index;
+        const ex = examples[index];
+        
+        document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+            btn.classList.toggle('active', idx === index);
+        });
+
+        document.getElementById('var-title').innerText = `المتغير: ${ex.varName} = '${ex.val}'`;
+
+        const container = document.getElementById('string-container');
+        container.innerHTML = '';
+        
+        for (let i = 0; i < ex.val.length; i++) {
+            const charBox = document.createElement('div');
+            charBox.className = 'char-box';
+            charBox.id = `char-${i}`;
+
+            const idxNum = document.createElement('div');
+            idxNum.className = 'index-num';
+            idxNum.innerText = i;
+
+            const charVal = document.createElement('div');
+            charVal.className = 'char-val';
+            charVal.innerText = ex.val[i];
+
+            charBox.appendChild(idxNum);
+            charBox.appendChild(charVal);
+            container.appendChild(charBox);
+        }
+
+        renderCode(-1);
+        document.getElementById('console-output').innerText = '';
+        document.getElementById('explanation').innerText = 'اضغطي على إحدى الخطوات أعلاه لمشاهدة كيفية تنفيذ التقطيع في بايثون!';
+
+        loadQuiz();
+    }
+
+    function renderCode(activeLineIndex) {
+        const ex = examples[currentExIndex];
+        const codeDisplay = document.getElementById('code-display');
+        codeDisplay.innerHTML = '';
+
+        ex.code.forEach((line, i) => {
+            const lineDiv = document.createElement('div');
+            lineDiv.className = `code-line ${i === activeLineIndex ? 'active' : ''}`;
+            
+            let formattedLine = line
+                .replace(/(print)/g, '<span class="func">$1</span>')
+                .replace(/(find)/g, '<span class="func">$1</span>')
+                .replace(/('.*?')/g, '<span class="string">$1</span>');
+
+            lineDiv.innerHTML = formattedLine;
+            codeDisplay.appendChild(lineDiv);
+        });
+    }
+
+    function clearHighlights() {
+        document.querySelectorAll('.char-box').forEach(box => {
+            box.className = 'char-box';
+        });
+    }
+
+    function runStep(step) {
+        clearHighlights();
+        const ex = examples[currentExIndex];
+        const expBox = document.getElementById('explanation');
+        const consoleOut = document.getElementById('console-output');
+
+        if (step === 1) {
+            document.getElementById(`char-${ex.dotIndex}`).classList.add('dot');
+            expBox.innerHTML = `<strong>الخطوة 1:</strong> تبحث الدالة <code>find('.')</code> عن موضع النقطة من اليسار، ووجدت أنها تقع عند رقم الفهرس <strong>(${ex.dotIndex})</strong>.`;
+            renderCode(1);
+            consoleOut.innerText = ex.dotIndex;
+        } else if (step === 2) {
+            for (let i = ex.denarSlice[0]; i < ex.denarSlice[1]; i++) {
+                document.getElementById(`char-${i}`).classList.add('denar');
+            }
+            expBox.innerHTML = `<strong>الخطوة 2:</strong> اقتطاع الدنانير قبل النقطة. نأخذ العناصر من البداية حتى الفهرس ${ex.dotIndex} (غير شامل). القيمة المقطوعة: <strong>${ex.val.slice(0, ex.dotIndex)}</strong>.`;
+            renderCode(2);
+            consoleOut.innerText = ex.val.slice(0, ex.dotIndex);
+        } else if (step === 3) {
+            for (let i = ex.filsSlice[0]; i < ex.filsSlice[1]; i++) {
+                document.getElementById(`char-${i}`).classList.add('fils');
+            }
+            expBox.innerHTML = `<strong>الخطوة 3:</strong> اقتطاع الفلوس. نأخذ العناصر من الفهرس ${ex.filsSlice[0]} (بعد النقطة بفرز واحد) وحتى نهاية السلسلة. القيمة المقطوعة: <strong>${ex.val.slice(ex.filsSlice[0])}</strong>.`;
+            renderCode(3);
+            consoleOut.innerText = ex.val.slice(ex.filsSlice[0]);
+        }
+    }
+
+    function resetSteps() {
+        clearHighlights();
+        renderCode(-1);
+        document.getElementById('console-output').innerText = '';
+        document.getElementById('explanation').innerText = 'تمت إعادة ضبط الشاشة.';
+    }
+
+    function loadQuiz() {
+        const ex = examples[currentExIndex];
+        document.getElementById('quiz-question').innerText = ex.quizQuestion;
+        const optsContainer = document.getElementById('quiz-options');
+        optsContainer.innerHTML = '';
+
+        ex.quizOpts.forEach(opt => {
+            const btn = document.createElement('div');
+            btn.className = 'quiz-option';
+            btn.innerText = opt.text;
+            btn.onclick = () => checkQuiz(opt.correct, btn);
+            optsContainer.appendChild(btn);
+        });
+    }
+
+    function checkQuiz(isCorrect, element) {
+        if (isCorrect) {
+            element.style.background = '#48BB78';
+            element.style.color = 'white';
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 } });
+        } else {
+            element.style.background = '#F56565';
+            element.style.color = 'white';
+        }
+    }
+
+    loadExample(0);
+</script>
+
+</body>
+</html>
